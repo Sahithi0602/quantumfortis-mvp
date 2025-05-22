@@ -1,0 +1,32 @@
+name: CI/CD
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - uses: actions/setup-node@v4
+      with:
+        node-version: 20
+
+    - run: npm install -g aws-cdk@2
+
+    - run: npm ci
+
+    - run: npm run build --workspaces
+
+    - uses: aws-actions/configure-aws-credentials@v4
+      with:
+        role-to-assume: arn:aws:iam::633087887417:role/GitHubOIDC
+        aws-region: eu-west-2
+
+    - run: cd infra && cdk deploy --all --require-approval never
