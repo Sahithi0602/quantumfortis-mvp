@@ -12,21 +12,25 @@ jobs:
       contents: read
 
     steps:
-    - uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
-    - uses: actions/setup-node@v4
-      with:
-        node-version: 20
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
 
-    - run: npm install -g aws-cdk@2
+      - run: npm install -g aws-cdk@2
 
-    - run: npm ci
+      - run: npm ci
+        working-directory: infra
 
-    - run: npm run build --workspaces
+      - run: npm run build
+        working-directory: infra
 
-    - uses: aws-actions/configure-aws-credentials@v4
-      with:
-        role-to-assume: arn:aws:iam::633087887417:role/GitHubOIDC
-        aws-region: eu-west-2
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: arn:aws:iam::633087887417:role/GitHubOIDC
+          aws-region: eu-west-2
 
-    - run: cd infra && cdk deploy --all --require-approval never
+      - run: cdk deploy --all --require-approval never
+        working-directory: infra
+
